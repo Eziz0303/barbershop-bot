@@ -1,0 +1,13 @@
+import os
+
+from dotenv import load_dotenv
+
+load_dotenv()
+
+BOT_TOKEN: str = os.getenv("BOT_TOKEN", "")
+ADMIN_IDS: list[int] = [
+    int(x) for x in os.getenv("ADMIN_IDS", "").split(",") if x.strip()
+]
+
+if not BOT_TOKEN:
+    raise RuntimeError("BOT_TOKEN не задан в переменных окружения (.env)")

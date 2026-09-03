@@ -1,0 +1,334 @@
+* {
+    box-sizing: border-box;
+}
+
+:root {
+    --accent: #d4a34a;
+    --accent-soft: rgba(212, 163, 74, 0.16);
+    --radius: 14px;
+}
+
+body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--tg-theme-bg-color, #ffffff);
+    color: var(--tg-theme-text-color, #111111);
+    -webkit-tap-highlight-color: transparent;
+}
+
+.app-header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    padding: 14px 16px 10px;
+    background: var(--tg-theme-bg-color, #ffffff);
+    border-bottom: 1px solid var(--tg-theme-secondary-bg-color, #eeeeee);
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.brand-icon {
+    font-size: 18px;
+}
+
+.brand-name {
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: 0.3px;
+}
+
+.progress {
+    display: flex;
+    gap: 6px;
+}
+
+.progress .dot {
+    flex: 1;
+    height: 4px;
+    border-radius: 4px;
+    background: var(--tg-theme-secondary-bg-color, #eeeeee);
+    transition: background 0.25s ease;
+}
+
+.progress .dot.done {
+    background: var(--accent);
+}
+
+.progress .dot.current {
+    background: var(--accent);
+    opacity: 0.55;
+}
+
+.app-main {
+    padding: 16px;
+    padding-bottom: 32px;
+}
+
+h1 {
+    font-size: 20px;
+    font-weight: 700;
+    margin: 4px 0 2px;
+}
+
+.subtitle {
+    margin: 0 0 16px;
+    font-size: 14px;
+    color: var(--tg-theme-hint-color, #888888);
+}
+
+.section-label {
+    margin: 4px 0 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--tg-theme-hint-color, #888888);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+.screen {
+    display: none;
+    animation: fadeIn 0.25s ease;
+}
+
+.screen.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.list-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px;
+    border-radius: var(--radius);
+    background: var(--tg-theme-secondary-bg-color, #f2f2f2);
+    color: var(--tg-theme-text-color, #111111);
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: border-color 0.15s ease, transform 0.1s ease;
+}
+
+.list-item:active {
+    transform: scale(0.98);
+}
+
+.list-item.selected {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+}
+
+.item-avatar {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--accent);
+    color: #1a1a1a;
+    font-weight: 700;
+    font-size: 16px;
+}
+
+.item-icon {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--accent-soft);
+    font-size: 18px;
+}
+
+.item-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.item-body .name {
+    font-weight: 600;
+    font-size: 15px;
+}
+
+.item-body .meta {
+    color: var(--tg-theme-hint-color, #888888);
+    font-size: 13px;
+}
+
+.item-check {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 2px solid var(--tg-theme-hint-color, #cccccc);
+    flex-shrink: 0;
+    transition: all 0.15s ease;
+}
+
+.list-item.selected .item-check {
+    border-color: var(--accent);
+    background: var(--accent);
+    box-shadow: inset 0 0 0 3px var(--tg-theme-secondary-bg-color, #f2f2f2);
+}
+
+.chip-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 18px;
+}
+
+.chip {
+    padding: 10px 16px;
+    border-radius: 10px;
+    background: var(--tg-theme-secondary-bg-color, #f2f2f2);
+    color: var(--tg-theme-text-color, #111111);
+    cursor: pointer;
+    border: 2px solid transparent;
+    font-size: 14px;
+    font-weight: 500;
+    transition: border-color 0.15s ease, transform 0.1s ease;
+}
+
+.chip:active {
+    transform: scale(0.96);
+}
+
+.chip.selected {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+    font-weight: 700;
+}
+
+.field-label {
+    display: block;
+    margin: 14px 0 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--tg-theme-hint-color, #888888);
+}
+
+.field-input {
+    width: 100%;
+    padding: 13px 14px;
+    border-radius: var(--radius);
+    border: 1px solid var(--tg-theme-secondary-bg-color, #e0e0e0);
+    background: var(--tg-theme-secondary-bg-color, #f8f8f8);
+    color: var(--tg-theme-text-color, #111111);
+    font-size: 16px;
+}
+
+.field-input:focus {
+    outline: none;
+    border-color: var(--accent);
+}
+
+.error-text {
+    color: #e5533d;
+    font-size: 13px;
+    min-height: 18px;
+    margin-top: 8px;
+}
+
+.summary {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 16px;
+    border-radius: var(--radius);
+    background: var(--tg-theme-secondary-bg-color, #f2f2f2);
+}
+
+.summary .row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+}
+
+.summary .row.total {
+    padding-top: 10px;
+    border-top: 1px solid rgba(128, 128, 128, 0.2);
+    font-weight: 700;
+    font-size: 15px;
+}
+
+.summary .row .label {
+    color: var(--tg-theme-hint-color, #888888);
+}
+
+.success-box {
+    text-align: center;
+    padding-top: 64px;
+}
+
+.success-box h1 {
+    font-size: 22px;
+}
+
+.success-box p {
+    color: var(--tg-theme-hint-color, #888888);
+    font-size: 14px;
+    padding: 0 24px;
+}
+
+.success-check {
+    width: 76px;
+    height: 76px;
+    margin: 0 auto 12px;
+    display: block;
+}
+
+.success-check-circle {
+    stroke: var(--accent);
+    stroke-width: 3;
+    stroke-dasharray: 151;
+    stroke-dashoffset: 151;
+    animation: drawCircle 0.5s ease forwards;
+}
+
+.success-check-mark {
+    stroke: var(--accent);
+    stroke-width: 4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-dasharray: 40;
+    stroke-dashoffset: 40;
+    animation: drawCheck 0.35s ease forwards 0.45s;
+}
+
+@keyframes drawCircle {
+    to {
+        stroke-dashoffset: 0;
+    }
+}
+
+@keyframes drawCheck {
+    to {
+        stroke-dashoffset: 0;
+    }
+}

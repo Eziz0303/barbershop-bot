@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Barbershop</title>
+<link rel="stylesheet" href="style.css">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+
+<div class="app-header">
+    <div class="brand">
+        <span class="brand-icon">✂️</span>
+        <span class="brand-name">Barbershop</span>
+    </div>
+    <div id="progress" class="progress">
+        <span class="dot" data-step="master"></span>
+        <span class="dot" data-step="service"></span>
+        <span class="dot" data-step="datetime"></span>
+        <span class="dot" data-step="contact"></span>
+        <span class="dot" data-step="confirm"></span>
+    </div>
+</div>
+
+<main class="app-main">
+
+<div id="screen-master" class="screen active">
+    <h1>Выберите мастера</h1>
+    <p class="subtitle">Кто будет вас стричь?</p>
+    <div id="master-list" class="list"></div>
+</div>
+
+<div id="screen-service" class="screen">
+    <h1>Выберите услугу</h1>
+    <p class="subtitle">Что будем делать?</p>
+    <div id="service-list" class="list"></div>
+</div>
+
+<div id="screen-datetime" class="screen">
+    <h1>Дата и время</h1>
+    <p class="subtitle">Когда вам удобно?</p>
+    <div id="date-list" class="chip-list"></div>
+    <p class="section-label">Время</p>
+    <div id="slot-list" class="chip-list"></div>
+</div>
+
+<div id="screen-contact" class="screen">
+    <h1>Ваши данные</h1>
+    <p class="subtitle">Как с вами связаться?</p>
+    <label class="field-label" for="client-name">Имя</label>
+    <input id="client-name" class="field-input" type="text" placeholder="Иван Иванов" maxlength="100">
+    <label class="field-label" for="client-phone">Телефон</label>
+    <input id="client-phone" class="field-input" type="tel" placeholder="+79991234567">
+    <p id="contact-error" class="error-text"></p>
+</div>
+
+<div id="screen-confirm" class="screen">
+    <h1>Всё верно?</h1>
+    <p class="subtitle">Проверьте детали записи</p>
+    <div id="summary" class="summary"></div>
+</div>
+
+<div id="screen-success" class="screen">
+    <div class="success-box">
+        <svg class="success-check" viewBox="0 0 52 52">
+            <circle class="success-check-circle" cx="26" cy="26" r="24" fill="none"/>
+            <path class="success-check-mark" fill="none" d="M14 27l8 8 16-16"/>
+        </svg>
+        <h1>Готово!</h1>
+        <p>Вы записаны. Подтверждение придёт сюда, в этот чат.</p>
+    </div>
+</div>
+
+</main>
+
+<script src="app.js"></script>
+</body>
+</html>

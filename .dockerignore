@@ -1,0 +1,11 @@
+.env
+.env.example
+.git
+data/
+__pycache__/
+*.pyc
+.venv/
+venv/
+.vscode/
+cloudflared.log
+*.log
