@@ -6,7 +6,7 @@ from urllib.parse import parse_qsl
 
 from fastapi import Header, HTTPException, status
 
-from config import BOT_TOKEN
+from config import BOT_TOKEN, INTERNAL_API_TOKEN
 
 INIT_DATA_MAX_AGE_SECONDS = 24 * 60 * 60
 
@@ -59,3 +59,14 @@ async def get_verified_telegram_user(
         )
 
     return json.loads(user_raw)
+
+
+async def verify_internal_token(
+    x_internal_token: str = Header(..., alias="X-Internal-Token"),
+) -> None:
+    """Проверяет служебные вызовы bot -> backend (не связаны с Telegram initData)."""
+    if not hmac.compare_digest(x_internal_token, INTERNAL_API_TOKEN):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid internal token",
+        )

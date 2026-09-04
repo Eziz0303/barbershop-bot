@@ -80,3 +80,29 @@ class BookingRead(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class RejectBooking(BaseModel):
+    reason: str = Field(min_length=1, max_length=500)
+
+    @field_validator("reason")
+    @classmethod
+    def validate_reason(cls, v: str) -> str:
+        v = v.strip()
+        if not v:
+            raise ValueError("Причина не может быть пустой")
+        return v
+
+
+class CancelBooking(BaseModel):
+    client_tg_id: int = Field(gt=0)
+
+
+class MyBookingRead(BaseModel):
+    id: int
+    master_name: str
+    service_name: str
+    slot_date: date
+    slot_time: time
+    status: str
+    price: int

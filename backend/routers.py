@@ -7,7 +7,7 @@ from sqlmodel import Session, select
 
 from database import get_session
 from models import Booking, Master, Service, Slot
-from notify import notify_booking_created
+from notify import notify_admin_new_booking
 from schemas import BookingCreate, BookingRead, MasterRead, ServiceRead, SlotRead
 from security import get_verified_telegram_user
 
@@ -76,6 +76,6 @@ async def create_booking(
 
     session.refresh(booking)
 
-    await notify_booking_created(booking, session.get(Master, booking.master_id), service, slot)
+    await notify_admin_new_booking(booking, session.get(Master, booking.master_id), service, slot)
 
     return booking

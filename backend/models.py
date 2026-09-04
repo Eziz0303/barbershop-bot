@@ -36,5 +36,6 @@ class Booking(SQLModel, table=True):
     client_name: str
     client_phone: str
     language: str = Field(default="ru")
-    status: str = Field(default="confirmed")
+    status: str = Field(default="pending")
+    reject_reason: Optional[str] = Field(default=None)
     created_at: datetime = Field(default_factory=datetime.utcnow)
