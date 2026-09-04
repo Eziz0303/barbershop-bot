@@ -90,11 +90,17 @@ function applyTranslations() {
     document.getElementById("lang-toggle").textContent = currentLang === "tk" ? "TM" : "RU";
 }
 
+function localizedName(obj) {
+    return currentLang === "tk" ? obj.name_tk : obj.name_ru;
+}
+
 function setLanguage(lang) {
     currentLang = lang;
     localStorage.setItem("lang", lang);
     applyTranslations();
     renderDates();
+    loadMasters();
+    loadServices();
 }
 
 const state = {
@@ -246,8 +252,8 @@ async function loadMasters() {
         const item = document.createElement("div");
         item.className = "list-item";
         item.innerHTML = `
-            <div class="item-avatar">${escapeHtml(m.name.charAt(0).toUpperCase())}</div>
-            <div class="item-body"><span class="name">${escapeHtml(m.name)}</span></div>
+            <div class="item-avatar">${escapeHtml(localizedName(m).charAt(0).toUpperCase())}</div>
+            <div class="item-body"><span class="name">${escapeHtml(localizedName(m))}</span></div>
             <div class="item-check"></div>
         `;
         item.addEventListener("click", () => {
@@ -270,7 +276,7 @@ async function loadServices() {
         item.innerHTML = `
             <div class="item-icon">✂️</div>
             <div class="item-body">
-                <span class="name">${escapeHtml(s.name)}</span>
+                <span class="name">${escapeHtml(localizedName(s))}</span>
                 <span class="meta">${s.duration_minutes} ${t("min_duration")} · ${s.price} ${CURRENCY}</span>
             </div>
             <div class="item-check"></div>
@@ -360,8 +366,8 @@ document.getElementById("client-phone").addEventListener("input", (e) => {
 function renderSummary() {
     const summary = document.getElementById("summary");
     summary.innerHTML = `
-        <div class="row"><span class="label">${t("summary_master")}</span><span>${escapeHtml(state.master.name)}</span></div>
-        <div class="row"><span class="label">${t("summary_service")}</span><span>${escapeHtml(state.service.name)}</span></div>
+        <div class="row"><span class="label">${t("summary_master")}</span><span>${escapeHtml(localizedName(state.master))}</span></div>
+        <div class="row"><span class="label">${t("summary_service")}</span><span>${escapeHtml(localizedName(state.service))}</span></div>
         <div class="row"><span class="label">${t("summary_date")}</span><span>${state.date}</span></div>
         <div class="row"><span class="label">${t("summary_time")}</span><span>${state.slot.slot_time.slice(0, 5)}</span></div>
         <div class="row"><span class="label">${t("summary_name")}</span><span>${escapeHtml(state.name)}</span></div>

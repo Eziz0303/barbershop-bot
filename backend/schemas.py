@@ -9,7 +9,8 @@ PHONE_REGEX = re.compile(r"^\+993\d{8}$")
 
 class MasterRead(BaseModel):
     id: int
-    name: str
+    name_ru: str
+    name_tk: str
     photo_url: Optional[str] = None
 
     class Config:
@@ -18,12 +19,41 @@ class MasterRead(BaseModel):
 
 class ServiceRead(BaseModel):
     id: int
-    name: str
+    name_ru: str
+    name_tk: str
     duration_minutes: int
     price: int
 
     class Config:
         from_attributes = True
+
+
+class MasterCreate(BaseModel):
+    name_ru: str = Field(min_length=1, max_length=100)
+    name_tk: str = Field(min_length=1, max_length=100)
+
+    @field_validator("name_ru", "name_tk")
+    @classmethod
+    def validate_names(cls, v: str) -> str:
+        v = v.strip()
+        if not v:
+            raise ValueError("Имя не может быть пустым")
+        return v
+
+
+class ServiceCreate(BaseModel):
+    name_ru: str = Field(min_length=1, max_length=100)
+    name_tk: str = Field(min_length=1, max_length=100)
+    duration_minutes: int = Field(gt=0, le=600)
+    price: int = Field(gt=0)
+
+    @field_validator("name_ru", "name_tk")
+    @classmethod
+    def validate_names(cls, v: str) -> str:
+        v = v.strip()
+        if not v:
+            raise ValueError("Название не может быть пустым")
+        return v
 
 
 class SlotRead(BaseModel):

@@ -6,14 +6,16 @@ from sqlmodel import Field, SQLModel
 
 class Master(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
-    name: str
+    name_ru: str
+    name_tk: str
     photo_url: Optional[str] = None
     is_active: bool = Field(default=True)
 
 
 class Service(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
-    name: str
+    name_ru: str
+    name_tk: str
     duration_minutes: int
     price: int
     is_active: bool = Field(default=True)

@@ -7,8 +7,9 @@ from database import get_session
 from models import Booking, Master, Service, Slot
 from notify import notify_client_confirmed, notify_client_rejected
 from report import generate_daily_report_pdf
-from schemas import RejectBooking
+from schemas import MasterCreate, RejectBooking, ServiceCreate
 from security import verify_internal_token
+from seed import ensure_future_slots
 
 router = APIRouter(prefix="/api/admin", dependencies=[Depends(verify_internal_token)])
 
@@ -76,8 +77,8 @@ async def daily_report(
     report_rows = [
         {
             "time": slot.slot_time.strftime("%H:%M"),
-            "master": master.name,
-            "service": service.name,
+            "master": master.name_ru,
+            "service": service.name_ru,
             "client": booking.client_name,
             "phone": booking.client_phone,
             "status": booking.status,
@@ -92,3 +93,30 @@ async def daily_report(
         media_type="application/pdf",
         headers={"Content-Disposition": f'attachment; filename="report_{report_date}.pdf"'},
     )
+
+
+@router.post("/masters", status_code=status.HTTP_201_CREATED)
+async def create_master(payload: MasterCreate, session: Session = Depends(get_session)):
+    master = Master(name_ru=payload.name_ru, name_tk=payload.name_tk)
+    session.add(master)
+    session.commit()
+    session.refresh(master)
+
+    ensure_future_slots(session)
+
+    return {"id": master.id, "name_ru": master.name_ru, "name_tk": master.name_tk}
+
+
+@router.post("/services", status_code=status.HTTP_201_CREATED)
+async def create_service(payload: ServiceCreate, session: Session = Depends(get_session)):
+    service = Service(
+        name_ru=payload.name_ru,
+        name_tk=payload.name_tk,
+        duration_minutes=payload.duration_minutes,
+        price=payload.price,
+    )
+    session.add(service)
+    session.commit()
+    session.refresh(service)
+
+    return {"id": service.id, "name_ru": service.name_ru, "name_tk": service.name_tk}

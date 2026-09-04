@@ -76,10 +76,12 @@ EXPIRE_REASON = {
 }
 
 
-def _format_booking(master: Master, service: Service, slot: Slot) -> dict:
+def _format_booking(master: Master, service: Service, slot: Slot, language: str = "ru") -> dict:
+    master_name = master.name_tk if language == "tk" else master.name_ru
+    service_name = service.name_tk if language == "tk" else service.name_ru
     return {
-        "master": master.name,
-        "service": service.name,
+        "master": master_name,
+        "service": service_name,
         "date": slot.slot_date.strftime("%d.%m.%Y"),
         "time": slot.slot_time.strftime("%H:%M"),
         "price": service.price,
@@ -87,7 +89,7 @@ def _format_booking(master: Master, service: Service, slot: Slot) -> dict:
 
 
 async def notify_admin_new_booking(booking: Booking, master: Master, service: Service, slot: Slot) -> None:
-    fields = _format_booking(master, service, slot)
+    fields = _format_booking(master, service, slot, "ru")
     admin_text = (
         "🆕 Новая запись — требует подтверждения\n\n"
         f"Клиент: {booking.client_name}\n"
@@ -120,7 +122,7 @@ async def notify_admin_new_booking(booking: Booking, master: Master, service: Se
 
 async def notify_client_confirmed(booking: Booking, master: Master, service: Service, slot: Slot) -> None:
     template = CONFIRMED_TEMPLATES.get(booking.language, CONFIRMED_TEMPLATES["ru"])
-    text = template.format(**_format_booking(master, service, slot))
+    text = template.format(**_format_booking(master, service, slot, booking.language))
     try:
         await send_telegram_message(booking.client_tg_id, text)
     except httpx.HTTPError:
@@ -136,7 +138,7 @@ async def notify_client_rejected(
     booking: Booking, master: Master, service: Service, slot: Slot, reason: str
 ) -> None:
     template = REJECTED_TEMPLATES.get(booking.language, REJECTED_TEMPLATES["ru"])
-    text = template.format(reason=reason, **_format_booking(master, service, slot))
+    text = template.format(reason=reason, **_format_booking(master, service, slot, booking.language))
     try:
         await send_telegram_message(booking.client_tg_id, text)
     except httpx.HTTPError:
@@ -149,7 +151,7 @@ async def notify_client_rejected(
 
 
 async def notify_admin_client_cancelled(booking: Booking, master: Master, service: Service, slot: Slot) -> None:
-    fields = _format_booking(master, service, slot)
+    fields = _format_booking(master, service, slot, "ru")
     text = CANCELLED_ADMIN_TEXT.format(
         client=booking.client_name,
         phone=booking.client_phone,

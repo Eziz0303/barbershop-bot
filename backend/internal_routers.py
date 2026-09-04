@@ -32,8 +32,8 @@ async def my_bookings(client_tg_id: int = Query(gt=0), session: Session = Depend
     return [
         MyBookingRead(
             id=booking.id,
-            master_name=master.name,
-            service_name=service.name,
+            master_name=master.name_tk if booking.language == "tk" else master.name_ru,
+            service_name=service.name_tk if booking.language == "tk" else service.name_ru,
             slot_date=slot.slot_date,
             slot_time=slot.slot_time,
             status=booking.status,

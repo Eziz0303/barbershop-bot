@@ -5,14 +5,14 @@ from sqlmodel import Session, col, select
 from models import Master, Service, Slot
 
 DEMO_MASTERS = [
-    {"name": "Алексей", "photo_url": None},
-    {"name": "Игорь", "photo_url": None},
+    {"name_ru": "Алексей", "name_tk": "Aleksey", "photo_url": None},
+    {"name_ru": "Игорь", "name_tk": "Igor", "photo_url": None},
 ]
 
 DEMO_SERVICES = [
-    {"name": "Стрижка", "duration_minutes": 40, "price": 1500},
-    {"name": "Стрижка + борода", "duration_minutes": 60, "price": 2200},
-    {"name": "Оформление бороды", "duration_minutes": 25, "price": 900},
+    {"name_ru": "Стрижка", "name_tk": "Saç kesimi", "duration_minutes": 40, "price": 1500},
+    {"name_ru": "Стрижка + борода", "name_tk": "Saç kesimi + sakgal", "duration_minutes": 60, "price": 2200},
+    {"name_ru": "Оформление бороды", "name_tk": "Sakgal timarlamak", "duration_minutes": 25, "price": 900},
 ]
 
 SLOT_HOURS = [10, 11, 12, 14, 15, 16, 17, 18]
