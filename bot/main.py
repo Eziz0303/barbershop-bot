@@ -14,8 +14,10 @@ from aiogram.types import (
     CallbackQuery,
     InlineKeyboardButton,
     InlineKeyboardMarkup,
+    KeyboardButton,
     MenuButtonWebApp,
     Message,
+    ReplyKeyboardMarkup,
     WebAppInfo,
 )
 
@@ -35,6 +37,20 @@ pending_rejections: dict[int, int] = {}
 
 STATUS_LABELS = {"pending": "⏳ ожидает подтверждения", "confirmed": "✅ подтверждена"}
 
+BTN_BOOK = "📅 Записаться"
+BTN_MY_BOOKINGS = "📋 Мои записи"
+BTN_REPORT = "📊 Отчёт за сегодня"
+
+
+def build_main_keyboard(is_admin: bool) -> ReplyKeyboardMarkup:
+    keyboard = [
+        [KeyboardButton(text=BTN_BOOK, web_app=WebAppInfo(url=WEBAPP_URL))],
+        [KeyboardButton(text=BTN_MY_BOOKINGS)],
+    ]
+    if is_admin:
+        keyboard.append([KeyboardButton(text=BTN_REPORT)])
+    return ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
+
 
 async def backend_request(method: str, path: str, **kwargs) -> Optional[httpx.Response]:
     headers = {"X-Internal-Token": INTERNAL_API_TOKEN}
@@ -48,15 +64,14 @@ async def backend_request(method: str, path: str, **kwargs) -> Optional[httpx.Re
 
 @dp.message(CommandStart())
 async def cmd_start(message: Message) -> None:
+    is_admin = message.from_user.id in ADMIN_IDS
     await message.answer(
-        "Добро пожаловать в Barbershop!\n"
-        "Нажмите кнопку «Записаться» рядом с полем ввода, чтобы записаться.\n"
-        "Команда /my — посмотреть свои записи."
+        "Добро пожаловать в Barbershop!\nВыберите действие на клавиатуре ниже.",
+        reply_markup=build_main_keyboard(is_admin),
     )
 
 
-@dp.message(Command("my"))
-async def cmd_my(message: Message) -> None:
+async def send_my_bookings(message: Message) -> None:
     resp = await backend_request(
         "GET", "/api/internal/bookings/my", params={"client_tg_id": message.from_user.id}
     )
@@ -82,14 +97,7 @@ async def cmd_my(message: Message) -> None:
         await message.answer(text, reply_markup=keyboard)
 
 
-@dp.message(Command("report"))
-async def cmd_report(message: Message) -> None:
-    if message.from_user.id not in ADMIN_IDS:
-        return
-
-    parts = (message.text or "").split(maxsplit=1)
-    report_date = parts[1].strip() if len(parts) > 1 else date.today().isoformat()
-
+async def send_report(message: Message, report_date: str) -> None:
     resp = await backend_request("GET", "/api/admin/report", params={"report_date": report_date})
     if resp is None or resp.status_code != 200:
         await message.answer("Не удалось сформировать отчёт. Проверьте формат даты (ГГГГ-ММ-ДД).")
@@ -97,6 +105,32 @@ async def cmd_report(message: Message) -> None:
 
     document = BufferedInputFile(resp.content, filename=f"report_{report_date}.pdf")
     await message.answer_document(document, caption=f"Отчёт за {report_date}")
+
+
+@dp.message(Command("my"))
+async def cmd_my(message: Message) -> None:
+    await send_my_bookings(message)
+
+
+@dp.message(F.text == BTN_MY_BOOKINGS)
+async def kb_my_bookings(message: Message) -> None:
+    await send_my_bookings(message)
+
+
+@dp.message(Command("report"))
+async def cmd_report(message: Message) -> None:
+    if message.from_user.id not in ADMIN_IDS:
+        return
+    parts = (message.text or "").split(maxsplit=1)
+    report_date = parts[1].strip() if len(parts) > 1 else date.today().isoformat()
+    await send_report(message, report_date)
+
+
+@dp.message(F.text == BTN_REPORT)
+async def kb_report(message: Message) -> None:
+    if message.from_user.id not in ADMIN_IDS:
+        return
+    await send_report(message, date.today().isoformat())
 
 
 @dp.callback_query(F.data.startswith("confirm:"))
@@ -158,13 +192,14 @@ async def handle_text(message: Message) -> None:
         return
 
     await message.answer(
-        "Не понял команду. Нажмите «Записаться» рядом с полем ввода, /my — свои записи, /start — начать заново."
+        "Не понял команду. Пожалуйста, используйте кнопки меню ниже.",
+        reply_markup=build_main_keyboard(user_id in ADMIN_IDS),
     )
 
 
 async def on_startup(bot: Bot) -> None:
     default_commands = [
-        BotCommand(command="start", description="Записаться в барбершоп"),
+        BotCommand(command="start", description="Открыть меню"),
         BotCommand(command="my", description="Мои записи"),
     ]
     await bot.set_my_commands(default_commands)
