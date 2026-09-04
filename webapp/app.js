@@ -1,9 +1,101 @@
 const tg = window.Telegram.WebApp;
 const initData = tg.initData;
 const API_BASE = "/api";
-const PHONE_REGEX = /^\+?\d{10,15}$/;
-const WEEKDAYS = ["вс", "пн", "вт", "ср", "чт", "пт", "сб"];
-const screens = ["master", "service", "datetime", "contact", "confirm", "success"];
+const CURRENCY = "TMT";
+const screens = ["language", "master", "service", "datetime", "contact", "confirm", "success"];
+
+const I18N = {
+    ru: {
+        master_title: "Выберите мастера",
+        master_subtitle: "Кто будет вас стричь?",
+        service_title: "Выберите услугу",
+        service_subtitle: "Что будем делать?",
+        datetime_title: "Дата и время",
+        datetime_subtitle: "Когда вам удобно?",
+        time_label: "Время",
+        contact_title: "Ваши данные",
+        contact_subtitle: "Как с вами связаться?",
+        name_label: "Имя",
+        name_placeholder: "Иван Иванов",
+        phone_label: "Телефон",
+        confirm_title: "Всё верно?",
+        confirm_subtitle: "Проверьте детали записи",
+        summary_master: "Мастер",
+        summary_service: "Услуга",
+        summary_date: "Дата",
+        summary_time: "Время",
+        summary_name: "Имя",
+        summary_phone: "Телефон",
+        summary_price: "Стоимость",
+        success_title: "Готово!",
+        success_text: "Вы записаны. Подтверждение придёт сюда, в этот чат.",
+        btn_next: "Далее",
+        btn_confirm: "Подтвердить запись",
+        btn_close: "Закрыть",
+        error_contact: "Введите корректные имя и телефон",
+        no_slots: "Нет свободных слотов на эту дату",
+        booking_conflict: "Не удалось создать запись: слот мог быть уже занят. Попробуйте выбрать другое время.",
+        min_duration: "мин",
+        weekdays: ["вс", "пн", "вт", "ср", "чт", "пт", "сб"],
+    },
+    tk: {
+        master_title: "Ussany saýlaň",
+        master_subtitle: "Sizi kim saç kesip berer?",
+        service_title: "Hyzmaty saýlaň",
+        service_subtitle: "Näme ederis?",
+        datetime_title: "Sene we wagt",
+        datetime_subtitle: "Haçan amatly?",
+        time_label: "Wagt",
+        contact_title: "Maglumatlaryňyz",
+        contact_subtitle: "Siz bilen nähili habarlaşmaly?",
+        name_label: "Ady",
+        name_placeholder: "Aman Amanow",
+        phone_label: "Telefon",
+        confirm_title: "Hemmesi dogrymy?",
+        confirm_subtitle: "Ýazgynyň jikme-jikliklerini barlaň",
+        summary_master: "Ussa",
+        summary_service: "Hyzmat",
+        summary_date: "Sene",
+        summary_time: "Wagt",
+        summary_name: "Ady",
+        summary_phone: "Telefon",
+        summary_price: "Bahasy",
+        success_title: "Taýyn!",
+        success_text: "Siz ýazyldyňyz. Tassyklama şu çata geler.",
+        btn_next: "Indiki",
+        btn_confirm: "Ýazgyny tassykla",
+        btn_close: "Ýap",
+        error_contact: "Dogry ady we telefon belgisini giriziň",
+        no_slots: "Bu sene üçin boş wagt ýok",
+        booking_conflict: "Ýazgy döredip bolmady: wagt eýýäm alnan bolup biler. Başga wagt saýlaň.",
+        min_duration: "min",
+        weekdays: ["Ýb", "Du", "Si", "Ça", "Pe", "An", "Şe"],
+    },
+};
+
+let currentLang = localStorage.getItem("lang");
+
+function t(key) {
+    const lang = I18N[currentLang] ? currentLang : "ru";
+    return I18N[lang][key] || key;
+}
+
+function applyTranslations() {
+    document.querySelectorAll("[data-i18n]").forEach((el) => {
+        el.textContent = t(el.dataset.i18n);
+    });
+    document.querySelectorAll("[data-i18n-placeholder]").forEach((el) => {
+        el.placeholder = t(el.dataset.i18nPlaceholder);
+    });
+    document.getElementById("lang-toggle").textContent = currentLang === "tk" ? "TM" : "RU";
+}
+
+function setLanguage(lang) {
+    currentLang = lang;
+    localStorage.setItem("lang", lang);
+    applyTranslations();
+    renderDates();
+}
 
 const state = {
     master: null,
@@ -58,9 +150,15 @@ function checkCanProceed() {
 function updateNavButtons() {
     const screen = screens[currentScreenIndex];
 
+    if (screen === "language") {
+        tg.BackButton.hide();
+        tg.MainButton.hide();
+        return;
+    }
+
     if (screen === "success") {
         tg.BackButton.hide();
-        tg.MainButton.setParams({ text: "Закрыть", is_active: true, is_visible: true });
+        tg.MainButton.setParams({ text: t("btn_close"), is_active: true, is_visible: true });
         return;
     }
 
@@ -71,7 +169,7 @@ function updateNavButtons() {
     }
 
     tg.MainButton.setParams({
-        text: screen === "confirm" ? "Подтвердить запись" : "Далее",
+        text: screen === "confirm" ? t("btn_confirm") : t("btn_next"),
         is_active: checkCanProceed(),
         is_visible: true,
     });
@@ -128,6 +226,18 @@ function escapeHtml(str) {
     return div.innerHTML;
 }
 
+function initLanguageScreen() {
+    document.querySelectorAll(".lang-item").forEach((item) => {
+        item.addEventListener("click", () => {
+            setLanguage(item.dataset.lang);
+            showScreen("master");
+        });
+    });
+    document.getElementById("lang-toggle").addEventListener("click", () => {
+        showScreen("language");
+    });
+}
+
 async function loadMasters() {
     const masters = await apiFetch("/masters");
     const list = document.getElementById("master-list");
@@ -161,7 +271,7 @@ async function loadServices() {
             <div class="item-icon">✂️</div>
             <div class="item-body">
                 <span class="name">${escapeHtml(s.name)}</span>
-                <span class="meta">${s.duration_minutes} мин · ${s.price} ₽</span>
+                <span class="meta">${s.duration_minutes} ${t("min_duration")} · ${s.price} ${CURRENCY}</span>
             </div>
             <div class="item-check"></div>
         `;
@@ -185,7 +295,8 @@ function renderDates() {
         const iso = d.toISOString().slice(0, 10);
         const chip = document.createElement("div");
         chip.className = "chip";
-        chip.textContent = `${WEEKDAYS[d.getDay()]} ${d.getDate()}.${String(d.getMonth() + 1).padStart(2, "0")}`;
+        chip.textContent = `${t("weekdays")[d.getDay()]} ${d.getDate()}.${String(d.getMonth() + 1).padStart(2, "0")}`;
+        chip.dataset.dayIndex = d.getDay();
         chip.addEventListener("click", () => {
             state.date = iso;
             state.slot = null;
@@ -204,7 +315,7 @@ async function loadSlots() {
     if (!state.date || !state.master) return;
     const slots = await apiFetch(`/slots?master_id=${state.master.id}&slot_date=${state.date}`);
     if (slots.length === 0) {
-        slotList.innerHTML = `<p class="error-text">Нет свободных слотов на эту дату</p>`;
+        slotList.innerHTML = `<p class="error-text">${t("no_slots")}</p>`;
         return;
     }
     slots.forEach((s) => {
@@ -226,33 +337,36 @@ function validateContact(showErrors) {
     const phoneInput = document.getElementById("client-phone");
     const errorEl = document.getElementById("contact-error");
     const name = nameInput.value.trim();
-    const phone = phoneInput.value.trim();
+    const phoneDigits = phoneInput.value.trim();
 
-    if (name.length < 2 || !PHONE_REGEX.test(phone)) {
+    if (name.length < 2 || !/^\d{8}$/.test(phoneDigits)) {
         if (showErrors) {
-            errorEl.textContent = "Введите корректные имя и телефон (например +79991234567)";
+            errorEl.textContent = t("error_contact");
         }
         return false;
     }
     errorEl.textContent = "";
     state.name = name;
-    state.phone = phone;
+    state.phone = "+993" + phoneDigits;
     return true;
 }
 
 document.getElementById("client-name").addEventListener("input", updateNavButtons);
-document.getElementById("client-phone").addEventListener("input", updateNavButtons);
+document.getElementById("client-phone").addEventListener("input", (e) => {
+    e.target.value = e.target.value.replace(/\D/g, "").slice(0, 8);
+    updateNavButtons();
+});
 
 function renderSummary() {
     const summary = document.getElementById("summary");
     summary.innerHTML = `
-        <div class="row"><span class="label">Мастер</span><span>${escapeHtml(state.master.name)}</span></div>
-        <div class="row"><span class="label">Услуга</span><span>${escapeHtml(state.service.name)}</span></div>
-        <div class="row"><span class="label">Дата</span><span>${state.date}</span></div>
-        <div class="row"><span class="label">Время</span><span>${state.slot.slot_time.slice(0, 5)}</span></div>
-        <div class="row"><span class="label">Имя</span><span>${escapeHtml(state.name)}</span></div>
-        <div class="row"><span class="label">Телефон</span><span>${escapeHtml(state.phone)}</span></div>
-        <div class="row total"><span class="label">Стоимость</span><span>${state.service.price} ₽</span></div>
+        <div class="row"><span class="label">${t("summary_master")}</span><span>${escapeHtml(state.master.name)}</span></div>
+        <div class="row"><span class="label">${t("summary_service")}</span><span>${escapeHtml(state.service.name)}</span></div>
+        <div class="row"><span class="label">${t("summary_date")}</span><span>${state.date}</span></div>
+        <div class="row"><span class="label">${t("summary_time")}</span><span>${state.slot.slot_time.slice(0, 5)}</span></div>
+        <div class="row"><span class="label">${t("summary_name")}</span><span>${escapeHtml(state.name)}</span></div>
+        <div class="row"><span class="label">${t("summary_phone")}</span><span>${escapeHtml(state.phone)}</span></div>
+        <div class="row total"><span class="label">${t("summary_price")}</span><span>${state.service.price} ${CURRENCY}</span></div>
     `;
 }
 
@@ -267,13 +381,14 @@ async function submitBooking() {
                 slot_id: state.slot.id,
                 client_name: state.name,
                 client_phone: state.phone,
+                language: I18N[currentLang] ? currentLang : "ru",
             }),
         });
         tg.MainButton.hideProgress();
         showScreen("success");
     } catch (e) {
         tg.MainButton.hideProgress();
-        tg.showAlert("Не удалось создать запись: слот мог быть уже занят. Попробуйте выбрать другое время.");
+        tg.showAlert(t("booking_conflict"));
         showScreen("datetime");
         loadSlots();
     }
@@ -282,9 +397,11 @@ async function submitBooking() {
 async function init() {
     tg.ready();
     tg.expand();
+    initLanguageScreen();
     renderDates();
+    applyTranslations();
     await Promise.all([loadMasters(), loadServices()]);
-    showScreen("master");
+    showScreen(I18N[currentLang] ? "master" : "language");
 }
 
 init();

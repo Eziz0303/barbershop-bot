@@ -4,7 +4,7 @@ from typing import Optional
 
 from pydantic import BaseModel, Field, field_validator
 
-PHONE_REGEX = re.compile(r"^\+?\d{10,15}$")
+PHONE_REGEX = re.compile(r"^\+993\d{8}$")
 
 
 class MasterRead(BaseModel):
@@ -42,6 +42,7 @@ class BookingCreate(BaseModel):
     slot_id: int = Field(gt=0)
     client_name: str = Field(min_length=2, max_length=100)
     client_phone: str
+    language: str = Field(default="ru")
 
     @field_validator("client_name")
     @classmethod
@@ -56,7 +57,14 @@ class BookingCreate(BaseModel):
     def validate_phone(cls, v: str) -> str:
         v = v.strip()
         if not PHONE_REGEX.match(v):
-            raise ValueError("Неверный формат телефона, ожидается например +79991234567")
+            raise ValueError("Неверный формат телефона, ожидается +993XXXXXXXX")
+        return v
+
+    @field_validator("language")
+    @classmethod
+    def validate_language(cls, v: str) -> str:
+        if v not in ("ru", "tk"):
+            raise ValueError("Unsupported language")
         return v
 
 

@@ -13,8 +13,10 @@
     <div class="brand">
         <span class="brand-icon">✂️</span>
         <span class="brand-name">Barbershop</span>
+        <button id="lang-toggle" class="lang-toggle" type="button">RU</button>
     </div>
     <div id="progress" class="progress">
+        <span class="dot" data-step="language"></span>
         <span class="dot" data-step="master"></span>
         <span class="dot" data-step="service"></span>
         <span class="dot" data-step="datetime"></span>
@@ -25,39 +27,59 @@
 
 <main class="app-main">
 
-<div id="screen-master" class="screen active">
-    <h1>Выберите мастера</h1>
-    <p class="subtitle">Кто будет вас стричь?</p>
+<div id="screen-language" class="screen active">
+    <h1>Выберите язык / Dili saýlaň</h1>
+    <p class="subtitle">Выберите язык интерфейса / Interfeýs dilini saýlaň</p>
+    <div class="list">
+        <div class="list-item lang-item" data-lang="ru">
+            <div class="item-icon">🇷🇺</div>
+            <div class="item-body"><span class="name">Русский</span></div>
+            <div class="item-check"></div>
+        </div>
+        <div class="list-item lang-item" data-lang="tk">
+            <div class="item-icon">🇹🇲</div>
+            <div class="item-body"><span class="name">Türkmençe</span></div>
+            <div class="item-check"></div>
+        </div>
+    </div>
+</div>
+
+<div id="screen-master" class="screen">
+    <h1 data-i18n="master_title">Выберите мастера</h1>
+    <p class="subtitle" data-i18n="master_subtitle">Кто будет вас стричь?</p>
     <div id="master-list" class="list"></div>
 </div>
 
 <div id="screen-service" class="screen">
-    <h1>Выберите услугу</h1>
-    <p class="subtitle">Что будем делать?</p>
+    <h1 data-i18n="service_title">Выберите услугу</h1>
+    <p class="subtitle" data-i18n="service_subtitle">Что будем делать?</p>
     <div id="service-list" class="list"></div>
 </div>
 
 <div id="screen-datetime" class="screen">
-    <h1>Дата и время</h1>
-    <p class="subtitle">Когда вам удобно?</p>
+    <h1 data-i18n="datetime_title">Дата и время</h1>
+    <p class="subtitle" data-i18n="datetime_subtitle">Когда вам удобно?</p>
     <div id="date-list" class="chip-list"></div>
-    <p class="section-label">Время</p>
+    <p class="section-label" data-i18n="time_label">Время</p>
     <div id="slot-list" class="chip-list"></div>
 </div>
 
 <div id="screen-contact" class="screen">
-    <h1>Ваши данные</h1>
-    <p class="subtitle">Как с вами связаться?</p>
-    <label class="field-label" for="client-name">Имя</label>
-    <input id="client-name" class="field-input" type="text" placeholder="Иван Иванов" maxlength="100">
-    <label class="field-label" for="client-phone">Телефон</label>
-    <input id="client-phone" class="field-input" type="tel" placeholder="+79991234567">
+    <h1 data-i18n="contact_title">Ваши данные</h1>
+    <p class="subtitle" data-i18n="contact_subtitle">Как с вами связаться?</p>
+    <label class="field-label" for="client-name" data-i18n="name_label">Имя</label>
+    <input id="client-name" class="field-input" type="text" data-i18n-placeholder="name_placeholder" placeholder="Иван Иванов" maxlength="100">
+    <label class="field-label" for="client-phone" data-i18n="phone_label">Телефон</label>
+    <div class="phone-input-group">
+        <span class="phone-prefix">+993</span>
+        <input id="client-phone" class="field-input phone-suffix" type="tel" inputmode="numeric" placeholder="65980795" maxlength="8">
+    </div>
     <p id="contact-error" class="error-text"></p>
 </div>
 
 <div id="screen-confirm" class="screen">
-    <h1>Всё верно?</h1>
-    <p class="subtitle">Проверьте детали записи</p>
+    <h1 data-i18n="confirm_title">Всё верно?</h1>
+    <p class="subtitle" data-i18n="confirm_subtitle">Проверьте детали записи</p>
     <div id="summary" class="summary"></div>
 </div>
 
@@ -67,8 +89,8 @@
             <circle class="success-check-circle" cx="26" cy="26" r="24" fill="none"/>
             <path class="success-check-mark" fill="none" d="M14 27l8 8 16-16"/>
         </svg>
-        <h1>Готово!</h1>
-        <p>Вы записаны. Подтверждение придёт сюда, в этот чат.</p>
+        <h1 data-i18n="success_title">Готово!</h1>
+        <p data-i18n="success_text">Вы записаны. Подтверждение придёт сюда, в этот чат.</p>
     </div>
 </div>
 

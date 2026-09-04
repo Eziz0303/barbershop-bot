@@ -40,6 +40,18 @@ body {
     font-weight: 700;
     font-size: 15px;
     letter-spacing: 0.3px;
+    flex: 1;
+}
+
+.lang-toggle {
+    border: none;
+    background: var(--tg-theme-secondary-bg-color, #eeeeee);
+    color: var(--tg-theme-text-color, #111111);
+    font-size: 12px;
+    font-weight: 700;
+    padding: 5px 10px;
+    border-radius: 8px;
+    cursor: pointer;
 }
 
 .progress {
@@ -246,6 +258,26 @@ h1 {
 .field-input:focus {
     outline: none;
     border-color: var(--accent);
+}
+
+.phone-input-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.phone-prefix {
+    padding: 13px 12px;
+    border-radius: var(--radius);
+    background: var(--tg-theme-secondary-bg-color, #f8f8f8);
+    border: 1px solid var(--tg-theme-secondary-bg-color, #e0e0e0);
+    font-weight: 600;
+    font-size: 16px;
+    color: var(--tg-theme-hint-color, #888888);
+}
+
+.phone-suffix {
+    flex: 1;
 }
 
 .error-text {

@@ -6,10 +6,16 @@ services:
     container_name: barbershop_backend
     env_file: .env
     volumes:
-      - ./data:/app/data
+      - barbershop_data:/app/data
     ports:
       - "8000:8000"
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health')"]
+      interval: 30s
+      timeout: 5s
+      start_period: 10s
+      retries: 3
     networks:
       - barbershop_net
 
@@ -20,7 +26,8 @@ services:
     container_name: barbershop_bot
     env_file: .env
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     restart: unless-stopped
     networks:
       - barbershop_net
@@ -28,3 +35,6 @@ services:
 networks:
   barbershop_net:
     driver: bridge
+
+volumes:
+  barbershop_data:

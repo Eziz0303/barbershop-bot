@@ -1,4 +1,5 @@
 from datetime import date as date_type
+from datetime import datetime
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.exc import IntegrityError
@@ -47,6 +48,8 @@ async def create_booking(
     slot = session.get(Slot, payload.slot_id)
     if slot is None or slot.master_id != payload.master_id or slot.is_booked:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Slot unavailable")
+    if datetime.combine(slot.slot_date, slot.slot_time) < datetime.now():
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Slot unavailable")
 
     service = session.get(Service, payload.service_id)
     if service is None or not service.is_active:
@@ -59,6 +62,7 @@ async def create_booking(
         client_tg_id=telegram_user["id"],
         client_name=payload.client_name,
         client_phone=payload.client_phone,
+        language=payload.language,
     )
     slot.is_booked = True
 

@@ -35,5 +35,6 @@ class Booking(SQLModel, table=True):
     client_tg_id: int
     client_name: str
     client_phone: str
+    language: str = Field(default="ru")
     status: str = Field(default="confirmed")
     created_at: datetime = Field(default_factory=datetime.utcnow)
