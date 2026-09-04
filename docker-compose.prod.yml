@@ -1,0 +1,66 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: barbershop_backend
+    env_file: .env
+    volumes:
+      - barbershop_data:/app/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health')"]
+      interval: 30s
+      timeout: 5s
+      start_period: 10s
+      retries: 3
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    networks:
+      - barbershop_net
+
+  bot:
+    build:
+      context: .
+      dockerfile: bot/Dockerfile
+    container_name: barbershop_bot
+    env_file: .env
+    depends_on:
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    networks:
+      - barbershop_net
+
+  caddy:
+    image: caddy:2-alpine
+    container_name: barbershop_caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - backend
+    networks:
+      - barbershop_net
+
+networks:
+  barbershop_net:
+    driver: bridge
+
+volumes:
+  barbershop_data:
+  caddy_data:
+  caddy_config:
