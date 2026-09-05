@@ -18,7 +18,7 @@ from aiogram.types import (
     InlineKeyboardButton,
     InlineKeyboardMarkup,
     KeyboardButton,
-    MenuButtonWebApp,
+    MenuButtonCommands,
     Message,
     ReplyKeyboardMarkup,
     WebAppInfo,
@@ -67,7 +67,7 @@ class AddServiceStates(StatesGroup):
 
 def build_main_keyboard(is_admin: bool) -> ReplyKeyboardMarkup:
     keyboard = [
-        [KeyboardButton(text=BTN_BOOK, web_app=WebAppInfo(url=WEBAPP_URL_VERSIONED))],
+        [KeyboardButton(text=BTN_BOOK)],
         [KeyboardButton(text=BTN_MY_BOOKINGS)],
     ]
     if is_admin:
@@ -94,6 +94,17 @@ async def cmd_start(message: Message, state: FSMContext) -> None:
         "Добро пожаловать в Barbershop!\nВыберите действие на клавиатуре ниже.",
         reply_markup=build_main_keyboard(is_admin),
     )
+
+
+@dp.message(F.text == BTN_BOOK, StateFilter(None))
+async def kb_book(message: Message) -> None:
+    # Telegram не передаёт initData (данные для проверки подлинности) в Web App,
+    # открытый прямо кнопкой reply-клавиатуры — только через inline-кнопку в
+    # сообщении или menu-button. Поэтому здесь отправляем сообщение с inline-кнопкой.
+    keyboard = InlineKeyboardMarkup(
+        inline_keyboard=[[InlineKeyboardButton(text=BTN_BOOK, web_app=WebAppInfo(url=WEBAPP_URL_VERSIONED))]]
+    )
+    await message.answer("Нажмите, чтобы открыть запись:", reply_markup=keyboard)
 
 
 async def send_my_bookings(message: Message) -> None:
@@ -358,10 +369,12 @@ async def on_startup(bot: Bot) -> None:
         except TelegramAPIError:
             logger.warning("Could not set admin commands for chat_id=%s", admin_id)
 
-    await bot.set_chat_menu_button(
-        menu_button=MenuButtonWebApp(text="Записаться", web_app=WebAppInfo(url=WEBAPP_URL_VERSIONED))
-    )
-    logger.info("Bot commands and menu button configured, WEBAPP_URL=%s", WEBAPP_URL_VERSIONED)
+    # MenuButtonWebApp (кнопка меню чата рядом с полем ввода) на части мобильных
+    # клиентов открывает Web App без initData — Telegram не успевает его передать.
+    # Поэтому вместо неё используем только reply-клавиатуру -> inline-кнопку в
+    # сообщении (kb_book) — этот путь проверен и реально передаёт initData.
+    await bot.set_chat_menu_button(menu_button=MenuButtonCommands())
+    logger.info("Bot commands configured, WEBAPP_URL=%s", WEBAPP_URL_VERSIONED)
 
 
 async def main() -> None:

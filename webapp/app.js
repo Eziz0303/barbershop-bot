@@ -1,5 +1,4 @@
 const tg = window.Telegram.WebApp;
-const initData = tg.initData;
 const API_BASE = "/api";
 const CURRENCY = "TMT";
 const screens = ["language", "master", "service", "datetime", "contact", "confirm", "success"];
@@ -214,7 +213,7 @@ async function apiFetch(path, options = {}) {
     const res = await fetch(API_BASE + path, {
         ...options,
         headers: {
-            "X-Telegram-Init-Data": initData,
+            "X-Telegram-Init-Data": tg.initData,
             "Content-Type": "application/json",
             ...(options.headers || {}),
         },

@@ -1,12 +1,15 @@
 import hashlib
 import hmac
 import json
+import logging
 import time
 from urllib.parse import parse_qsl
 
 from fastapi import Header, HTTPException, status
 
 from config import BOT_TOKEN, INTERNAL_API_TOKEN
+
+logger = logging.getLogger(__name__)
 
 INIT_DATA_MAX_AGE_SECONDS = 24 * 60 * 60
 
@@ -45,7 +48,8 @@ async def get_verified_telegram_user(
 ) -> dict:
     try:
         parsed = _check_init_data_hash(x_telegram_init_data)
-    except ValueError:
+    except ValueError as e:
+        logger.warning("initData rejected: %s | raw=%r", e, x_telegram_init_data[:300])
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid Telegram authentication data",
